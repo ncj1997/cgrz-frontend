@@ -38,7 +38,7 @@ export default {
       selectedImages.forEach((file) => formData.append('images', file));
 
       try {
-        const response = await fetch('http://backend.intelilab.click/progress', {
+        const response = await fetch('https://backend.intelilab.click/progress', {
           method: 'POST',
           body: formData,
         });

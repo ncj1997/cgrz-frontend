@@ -59,7 +59,7 @@ export default {
     downloadImage() {
       const filename = this.finalImageUrl.split('/').pop(); 
       console.log(filename)// Extract the filename from the URL
-      const downloadUrl = `http://backend.intelilab.click/download-image/${filename}`; // Point to the Flask download route
+      const downloadUrl = `https://backend.intelilab.click/download-image/${filename}`; // Point to the Flask download route
 
       // Make a GET request to trigger the download
       fetch(downloadUrl)
