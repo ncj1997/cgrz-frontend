@@ -1,7 +1,7 @@
 <!-- src/App.vue -->
 <template>
-  <v-container>
-    <v-row>
+  <v-container class="mx-auto">
+    <v-row class="mx-0">
       <!-- Left Panel: Image Upload and Preview -->
       <v-col cols="6">
         <ImageUploadPanel @upload="uploadImages" />
@@ -9,11 +9,8 @@
 
       <!-- Right Panel: Progress Updates -->
       <v-col cols="6">
-        <ProgressPanel
-          :progressMessages="progressMessages"
-          :finalImageUrl="finalImageUrl"
-          :loading="loading"
-        />
+        <ProgressPanel :currentStep="currentStep" :totalSteps=totalSteps :progressMessages="progressMessages"
+          :finalImageUrl="finalImageUrl" :loading="loading" />
       </v-col>
     </v-row>
   </v-container>
@@ -24,6 +21,8 @@
 export default {
   data() {
     return {
+      currentStep: 1,
+      totalSteps: 5,
       progressMessages: [],
       finalImageUrl: null,
       loading: false,
@@ -39,7 +38,7 @@ export default {
       selectedImages.forEach((file) => formData.append('images', file));
 
       try {
-        const response = await fetch('http://localhost:5000/progress', {
+        const response = await fetch('http://backend.intelilab.click/progress', {
           method: 'POST',
           body: formData,
         });
@@ -63,8 +62,14 @@ export default {
           for (const message of messages) {
             if (message.startsWith('data:')) {
               const progressMessage = message.replace('data: ', '').trim();
-              
+
               this.progressMessages = [progressMessage];
+
+              // Extract the step number from the message
+              const stepMatch = message.match(/Step (\d+):/);
+              if (stepMatch && stepMatch[1]) {
+                this.currentStep = parseInt(stepMatch[1], 10); // Convert step number to integer
+              }
 
               if (progressMessage.includes('Image processed')) {
                 this.loading = false;
@@ -72,6 +77,7 @@ export default {
                 const urlMatch = progressMessage.match(/View at (.*)/);
                 if (urlMatch && urlMatch[1]) {
                   this.finalImageUrl = urlMatch[1];
+                  console.log(this.finalImageUrl)
                 }
 
                 loading = false;
@@ -92,6 +98,6 @@ export default {
 
 <style scoped>
 v-container {
-  padding: 20px;
+  padding: 1px;
 }
 </style>
