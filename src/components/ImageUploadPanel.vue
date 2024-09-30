@@ -1,5 +1,5 @@
 <template>
-  <v-card class="upload-card" height="90vh">
+  <v-card elevation="5" class="upload-card" >
     <v-card-title>Image Upload & Preview</v-card-title>
     <v-card-text class="upload-content">
       <!-- Clickable Drag and Drop Area -->
@@ -111,6 +111,7 @@ export default {
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
+  width: 100%;
 }
 
 .upload-content {

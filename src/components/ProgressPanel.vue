@@ -1,5 +1,5 @@
 <template>
-  <v-card class="progress-card" height="90vh">
+  <v-card elevation="5" class="progress-card" >
     <v-card-title>Progress Updates</v-card-title>
 
     <!-- Initial Description State (Before Upload) -->

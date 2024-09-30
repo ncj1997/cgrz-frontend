@@ -1,15 +1,15 @@
 <!-- src/App.vue -->
 <template>
-  <v-container class="mx-auto">
-    <v-row class="mx-0">
+  <v-container fluid class="pa-1" >
+    <v-row >
       <!-- Left Panel: Image Upload and Preview -->
-      <v-col cols="6">
-        <ImageUploadPanel @upload="uploadImages" />
+      <v-col>
+        <ImageUploadPanel height="85vh" @upload="uploadImages" />
       </v-col>
 
       <!-- Right Panel: Progress Updates -->
-      <v-col cols="6">
-        <ProgressPanel :currentStep="currentStep" :totalSteps=totalSteps :progressMessages="progressMessages"
+      <v-col>
+        <ProgressPanel height="85vh" :currentStep="currentStep" :totalSteps=totalSteps :progressMessages="progressMessages"
           :finalImageUrl="finalImageUrl" :loading="loading" />
       </v-col>
     </v-row>
