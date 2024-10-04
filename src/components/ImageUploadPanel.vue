@@ -32,7 +32,7 @@
             @dragleave.prevent="dragging = false" @click="openFilePicker"
             :class="{ 'dragging': dragging, 'with-images': imagePreviews.length > 0 }">
             <div v-if="imagePreviews.length === 0" class="my-10">
-              <img src="../assets/add-image.png"  alt="placeholder" class="placeholder-image" />
+              <img src="../assets/add-image.png" alt="placeholder" class="placeholder-image" />
               <p class="mb5">Drag and drop your images here, or click to select files</p>
 
             </div>
@@ -140,6 +140,7 @@ export default {
       // Append new images to the existing previews
       this.selectedImages.forEach((file) => {
         const reader = new FileReader();
+        this.imagePreviews = []
         reader.onload = (e) => {
           this.imagePreviews.push({ src: e.target.result });
         };
