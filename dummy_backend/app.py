@@ -1,8 +1,12 @@
 from flask import Flask, Response
 import time
 from flask_cors import CORS
+
 app = Flask(__name__)
-CORS(app)
+
+CORS(app, origins = "*")
+# CORS(app)
+
 # Set this variable to control the wait time between steps
 wait_time = 4  # in seconds, change this value as needed
 
@@ -73,4 +77,4 @@ def generate_camouflage():
     return Response(event_stream(), content_type='text/event-stream')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=8080)
