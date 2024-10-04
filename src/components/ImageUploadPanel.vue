@@ -140,7 +140,7 @@ export default {
       // Append new images to the existing previews
       this.selectedImages.forEach((file) => {
         const reader = new FileReader();
-        this.imagePreviews = []
+        // this.imagePreviews = []
         reader.onload = (e) => {
           this.imagePreviews.push({ src: e.target.result });
         };
