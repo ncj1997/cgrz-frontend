@@ -42,8 +42,11 @@ export default {
       selectedImages.forEach((file) => formData.append('images', file));
 
       try {
-        const response = await fetch('http://localhost:5000/gencam', {
+        const response = await fetch('http://localhost:8080/gencam', {
           method: 'POST',
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          },
           body: formData,
         });
 
