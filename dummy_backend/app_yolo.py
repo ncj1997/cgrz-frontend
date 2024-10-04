@@ -1,4 +1,4 @@
-from flask import Flask, request, Response, send_from_directory
+from flask import Flask, request, Response, send_from_directory,jsonify
 import os
 import cv2
 import time
@@ -44,10 +44,6 @@ def apply_camouflage_with_blending(img, mask, pattern, proximity_factor=1.0, alp
 
 # SSE stream to send real-time updates
 def sse_stream(env_image, camo_image, selected_objects, base_url):
-    try:
-
-        yield "data: Processing started...\n\n"
-
                 # Load YOLOv8 model (segmentation)
         model = YOLO('yolov8n-seg.pt')
 
@@ -64,7 +60,7 @@ def sse_stream(env_image, camo_image, selected_objects, base_url):
         results = model(img)
 
         # Define the object types you are interested in
-        object_types = ['person', 'car', 'bus', 'truck', 'motorcycle']  # Add any other vehicle/object type
+        object_types = selected_objects
 
         # Extract masks, boxes, labels, and confidences
         masks = []
@@ -184,12 +180,30 @@ def sse_stream(env_image, camo_image, selected_objects, base_url):
 
         cv2.imwrite(save_path_step3, img_step3)
 
-      
-        yield "data: DONE\n\n"
+        return save_path_step3
     
-    except Exception as e:
-        yield f"data: Error: {str(e)}\n\n"
-        yield "data: DONE\n\n"
+def check_detection(camo_applied_image, selected_objects):
+    camo_applied_image = cv2.imread(camo_applied_image)
+    img_rgb = cv2.cvtColor(camo_applied_image, cv2.COLOR_BGR2RGB)
+    results_after_camouflage = model(img_rgb)
+
+    # Check if any selected objects were detected
+    no_detections = True  # Flag to check if there are no detections of selected objects
+
+    # Iterate through results to see if any selected objects were detected
+    for result in results_after_camouflage:
+        if result.boxes:  # Check if there are any bounding boxes
+            for box in result.boxes:
+                label = result.names[int(box.cls)]
+                if label in selected_objects:
+                    no_detections = False
+                    confidence = box.conf.item()  # Convert tensor to float
+                    return f"Detected {label} with confidence {confidence:.2f}"
+
+    # If no selected objects were detected
+    if no_detections:
+        return f"No detections: YOLO was unable to detect any of the selected objects ({', '.join(selected_objects)}) in the image."
+
 
 @app.route('/apply_camouflage', methods=['POST'])
 def apply_camouflage():
@@ -211,7 +225,17 @@ def apply_camouflage():
     }
     selected_objects = object_types.get(object_type, [])
 
-    return Response(sse_stream(env_image, camo_image, selected_objects, base_url), mimetype='text/event-stream')
+    final_applied_images = sse_stream(env_image, camo_image, selected_objects, base_url)
+
+
+    detection_result = check_detection(final_applied_images,selected_objects)
+
+        # Use os.path.relpath to get the relative path from the static folder
+    relative_path = os.path.relpath(final_applied_images, start='static')
+    image_url = f"{base_url}/static/{relative_path.replace(os.sep, '/')}"
+
+    # Return the image URL as JSON
+    return jsonify({'image_url': image_url,'detection_result': detection_result})
 
 # Serve the camouflaged image
 @app.route('/static/camafalgues/<filename>')
