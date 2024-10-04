@@ -1,20 +1,47 @@
 <template>
-  <v-card elevation="5" class="upload-card" >
-    <v-card-title>Image Upload & Preview</v-card-title>
+  <v-card elevation="5" class="upload-card">
+    <v-card-title class="bg-blue-lighten-5 mb-2 pt-4">Image Upload & Preview</v-card-title>
+
+
+
     <v-card-text class="upload-content">
       <!-- Clickable Drag and Drop Area -->
-      <div class="drop-area" @dragover.prevent @drop.prevent="handleDrop" @dragenter.prevent="dragging = true"
-        @dragleave.prevent="dragging = false" @click="openFilePicker"
-        :class="{ 'dragging': dragging, 'with-images': imagePreviews.length > 0 }">
-        <div v-if="imagePreviews.length === 0" class="my-10">
-          <img src="../assets/add-image.png" alt="placeholder" class="placeholder-image" />
-          <p class="mb5">Drag and drop your images here, or click to select files</p>
 
-        </div>
+      <v-row>
+        <v-col>
+          <v-select v-model="selectedEnvironment" :items="environments" item-title="textenv" :item-props="true"
+            label="Select Environment" outlined>
+            <!-- Custom rendering of each item -->
+            <template #item="{ item, on, props }">
+              <v-list-item v-bind="props" v-on="on" :title="item.textenv" :prepend-icon="props.icon">
+                <v-list-item-content>
+                  <v-list-item-title>{{ props.textenv }}</v-list-item-title>
+                  <v-list-item-subtitle>{{ props.description }}</v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+            </template>
 
-        <p v-if="!dragging && imagePreviews.length > 0">Click to add more images</p>
+          </v-select>
+        </v-col>
+      </v-row>
 
-      </div>
+
+      <v-row>
+        <v-col>
+          <div class="drop-area" @dragover.prevent @drop.prevent="handleDrop" @dragenter.prevent="dragging = true"
+            @dragleave.prevent="dragging = false" @click="openFilePicker"
+            :class="{ 'dragging': dragging, 'with-images': imagePreviews.length > 0 }">
+            <div v-if="imagePreviews.length === 0" class="my-10">
+              <img src="../assets/add-image.png"  alt="placeholder" class="placeholder-image" />
+              <p class="mb5">Drag and drop your images here, or click to select files</p>
+
+            </div>
+
+            <p v-if="!dragging && imagePreviews.length > 0">Click to add more images</p>
+
+          </div>
+        </v-col>
+      </v-row>
 
 
       <!-- Hidden File Input -->
@@ -24,10 +51,10 @@
       <!-- Image Previews -->
       <div v-if="imagePreviews.length" class="preview-container">
         <v-row>
-          <v-col v-for="(img, index) in imagePreviews" :key="index" cols="4" class="image-preview">
+          <v-col v-for="(img, index) in imagePreviews" :key="index" cols="3" class="image-preview">
             <div class="image-container">
               <v-img :src="img.src" max-width="100%" height="100px" class="preview-image"
-                :alt="'Preview ' + (index + 1)" contain />
+                :alt="'Preview ' + (index + 1)" cover contain />
               <v-btn icon class="delete-btn" @click="deleteImage(index)">
                 <v-icon>mdi-delete</v-icon>
               </v-btn>
@@ -48,6 +75,34 @@
 export default {
   data() {
     return {
+      selectedEnvironment: null,
+      description: "Choose an environment to adapt the camouflage pattern.",
+      environments: [
+        {
+          textenv: "Desert",
+          value: "desert",
+          description: "Sandy desert environment.",
+          icon: "mdi-weather-sunny",
+        },
+        {
+          textenv: "Forest",
+          value: "forest",
+          description: "Lush forest environment.",
+          icon: "mdi-tree",
+        },
+        {
+          textenv: "Snowy",
+          value: "snowy",
+          description: "Icy snowy environment.",
+          icon: "mdi-snowflake",
+        },
+        {
+          textenv: "Urban",
+          value: "urban",
+          description: "Busy urban environment.",
+          icon: "mdi-city",
+        },
+      ],
       selectedImages: [],
       imagePreviews: [],
       dragging: false,

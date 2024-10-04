@@ -1,7 +1,7 @@
 <!-- src/App.vue -->
 <template>
-  <v-container fluid class="pa-1" >
-    <v-row >
+  <v-container fluid class="pa-1">
+    <v-row>
       <!-- Left Panel: Image Upload and Preview -->
       <v-col>
         <ImageUploadPanel height="85vh" @upload="uploadImages" />
@@ -9,8 +9,8 @@
 
       <!-- Right Panel: Progress Updates -->
       <v-col>
-        <ProgressPanel height="85vh" :currentStep="currentStep" :totalSteps=totalSteps :progressMessages="progressMessages"
-          :finalImageUrl="finalImageUrl" :loading="loading" />
+        <ProgressPanel height="85vh" :currentStep="currentStep" :totalSteps=totalSteps
+          :steps ="steps" :loading="loading" />
       </v-col>
     </v-row>
   </v-container>
@@ -21,16 +21,20 @@
 export default {
   data() {
     return {
-      currentStep: 1,
-      totalSteps: 5,
+      currentStep: 0,
+      totalSteps: 10,
+      steps: [],
       progressMessages: [],
       finalImageUrl: null,
       loading: false,
+
     };
   },
   methods: {
     async uploadImages(selectedImages) {
       this.loading = true;
+      // this.currentStep = 0
+      // this.steps = []
       this.progressMessages = [];
       this.finalImageUrl = null;
 
@@ -38,7 +42,7 @@ export default {
       selectedImages.forEach((file) => formData.append('images', file));
 
       try {
-        const response = await fetch('https://backend.intelilab.click/progress', {
+        const response = await fetch('http://localhost:5000/gencam', {
           method: 'POST',
           body: formData,
         });
@@ -63,25 +67,21 @@ export default {
             if (message.startsWith('data:')) {
               const progressMessage = message.replace('data: ', '').trim();
 
-              this.progressMessages = [progressMessage];
+              const data = JSON.parse(progressMessage);
 
-              // Extract the step number from the message
-              const stepMatch = message.match(/Step (\d+):/);
-              if (stepMatch && stepMatch[1]) {
-                this.currentStep = parseInt(stepMatch[1], 10); // Convert step number to integer
-              }
+              // Push each new step to the reactive steps array
+              this.steps.push({
+                id: data.id,
+                description: data.description,
+                imageUrl: data.imageUrl,
+                status: data.status
+              });
+              console.log(data.description)
+              this.currentStep = data.id
 
-              if (progressMessage.includes('Image processed')) {
+              if (this.currentStep == 10) {
                 this.loading = false;
 
-                const urlMatch = progressMessage.match(/View at (.*)/);
-                if (urlMatch && urlMatch[1]) {
-                  this.finalImageUrl = urlMatch[1];
-                  console.log(this.finalImageUrl)
-                }
-
-                loading = false;
-                break;
               }
             }
           }

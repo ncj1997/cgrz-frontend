@@ -1,73 +1,76 @@
-import os
-from flask import Flask, abort, jsonify, request, Response, send_file
+from flask import Flask, Response
 import time
-
 from flask_cors import CORS
-
 app = Flask(__name__)
 CORS(app)
+# Set this variable to control the wait time between steps
+wait_time = 4  # in seconds, change this value as needed
 
+# Dummy steps data with image URLs
+steps = [
+    {
+        'id': 1,
+        'description': 'Step 1: Uploading the environment image.',
+        'imageUrl': 'https://picsum.photos/seed/step1/500/500'
+    },
+    {
+        'id': 2,
+        'description': 'Step 2: Segmenting the environment.',
+        'imageUrl': 'https://picsum.photos/seed/picsum2/500/500'
+    },
+    {
+        'id': 3,
+        'description': 'Step 3: Analyzing textures.',
+        'imageUrl': 'https://picsum.photos/seed/picsum3/500/500'
+    },
+    {
+        'id': 4,
+        'description': 'Step 4: Generating base noise.',
+        'imageUrl': 'https://picsum.photos/seed/picsum4/500/500'
+    },
+    {
+        'id': 5,
+        'description': 'Step 5: Applying Voronoi tessellation.',
+        'imageUrl': 'https://picsum.photos/seed/picsum5/500/500'
+    },
+    {
+        'id': 6,
+        'description': 'Step 6: Assigning textures to cells.',
+        'imageUrl': 'https://picsum.photos/seed/picsum6/500/500'
+    },
+    {
+        'id': 7,
+        'description': 'Step 7: Blending textures.',
+        'imageUrl': 'https://picsum.photos/seed/picsum7/500/500'
+    },
+    {
+        'id': 8,
+        'description': 'Step 8: Overlaying camouflage.',
+        'imageUrl': 'https://picsum.photos/seed/picsum8/500/500'
+    },
+    {
+        'id': 9,
+        'description': 'Step 9: Object camouflage optimization.',
+        'imageUrl': 'https://picsum.photos/seed/picsum9/500/500'
+    },
+    {
+        'id': 10,
+        'description': 'Step 10: Final camouflage generated.',
+        'imageUrl': 'https://picsum.photos/seed/picsum10/500/500'
+    }
+]
 
-# Define the directory where your images are stored
-IMAGE_DIRECTORY = 'static/images/patterns'
+# SSE route for streaming progress with image URLs
+@app.route('/gencam', methods=['POST'])
+def generate_camouflage():
+    def event_stream():
+        # Simulate processing steps with a delay
+        for step in steps:
+            time.sleep(wait_time)  # Wait before moving to the next step
+            yield f'data: {{"id": {step["id"]}, "description": "{step["description"]}", "imageUrl": "{step["imageUrl"]}", "status": "completed"}}\n\n'
+    
+    # Return an SSE-compatible response
+    return Response(event_stream(), content_type='text/event-stream')
 
-@app.route('/download-image/<filename>', methods=['GET'])
-def download_image(filename):
-    try:
-        # Build the full path to the file
-        file_path = os.path.join(IMAGE_DIRECTORY, filename)
-
-        # Check if the file exists
-        if os.path.exists(file_path):
-            # Send the file with the proper Content-Disposition header to trigger download
-            return send_file(file_path, as_attachment=True, download_name=filename)
-        else:
-            abort(404)  # Return a 404 if the file is not found
-
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500  # Return error message if something goes wrong
-
-
-@app.route('/progress', methods=['POST'])
-def progress():
-    # Check if the request contains images
-    if 'images' not in request.files:
-        return Response("No images part in the request", status=400)
-
-    files = request.files.getlist('images')
-
-    # Generator function to stream progress
-    def generate():
-        try:
-            # Step 1: Image Uploading
-            yield f"data: Step 1: Images Uploaded \n\n"
-            time.sleep(1)  # Simulate the delay for processing
-
-            # Step 2: Image Preprocessing
-            yield f"data: Step 2: Image Preprocessing\n\n"
-            time.sleep(1)
-
-            # Step 3: Applying Filters
-            yield f"data: Step 3: Applying Filters\n\n"
-            time.sleep(1)
-
-            # Step 4: Generating Camouflage
-            yield f"data: Step 4: Generating Camouflage\n\n"
-            time.sleep(1)
-
-            # Step 5: Finishing
-            yield f"data: Step 5: Finishing\n\n"
-            time.sleep(1)
-
-            # Once processing is done, send the final image URL
-            image_url = "http://backend.intelilab.click/static/images/patterns/camouflaged_20240929010354.png"
-            yield f"data: Image processed. View at {image_url}\n\n"
-        
-        except Exception as e:
-            yield f"data: Error occurred: {str(e)}\n\n"
-
-    # Return the event-stream response
-    return Response(generate(), mimetype='text/event-stream')
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(debug=True)

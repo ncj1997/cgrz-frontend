@@ -1,42 +1,89 @@
 <template>
-  <v-card elevation="5" class="progress-card" >
-    <v-card-title>Progress Updates</v-card-title>
+  <v-card v-if="currentStepIndex > 0" elevation="5" class="progress-card">
+    <v-progress-linear v-if="loading" color="cyan" striped height="8" indeterminate="">
+    </v-progress-linear>
+    <v-card-title class="bg-blue-lighten-5 mb-2">Progress Updates</v-card-title>
 
-    <!-- Initial Description State (Before Upload) -->
-    <v-card-text v-if="!loading && !finalImageUrl">
-      <p class="initial-state-text">
-        Upload multiple images of an environment, and a camouflage pattern will be generated for the images.
-      </p>
+    <!-- Display Current Step Image and Description -->
+    <v-card-text class="text-center pt-4">
+      <span>
+        {{ steps[currentStepIndex - 1]["description"] }}
+      </span>
+      <v-container>
+        <v-row class="d-flex justify-center align-center">
+          <v-col class=" text-center">
+            <v-img :aspect-ratio="1" class="bg-white mx-auto mt-4" :src="steps[currentStepIndex - 1]['imageUrl']"
+              width="500" cover>
+
+              <template v-slot:placeholder>
+                <div class="d-flex align-center justify-center fill-height grey-lighten-4"
+                  style="background-color: #FAFAFA;">
+                  <v-progress-circular color="grey-lighten-4" indeterminate></v-progress-circular>
+                </div>
+              </template>
+
+            </v-img>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-btn variant="outlined" class="mx-auto" :loading="loading_download"
+            @click="loading_download = !loading_download">
+            Download the image
+
+            <template v-slot:loader>
+              <v-progress-linear indeterminate></v-progress-linear>
+            </template>
+          </v-btn>
+        </v-row>
+      </v-container>
     </v-card-text>
 
-    <!-- Progress State -->
-    <v-card-text v-if="loading" class="progress-content">
-      <v-progress-linear v-if="loading" stream striped :model-value="progressPercentage" height="10" color="primary"
-        class="progress-bar"></v-progress-linear>
+    <!-- Navigation Buttons -->
+    <v-btn variant="flat" color="#bbDDDD" icon="mdi-chevron-left" @click="goPrevious" class="mx-1 prev-btn"
+      :disabled="(currentStepIndex === 1) || loading">
 
-      <!-- Step Image with Transition -->
-      <transition name="fade" mode="out-in">
-        <img v-if="currentStep > 0 && currentStep <= totalSteps" :src="`/static/step${currentStep}.png`"
-          :alt="`Step ${currentStep}`" class="step-image" key="step-image" />
-      </transition>
+    </v-btn>
+    <v-btn ariant="flat" color="#bbDDDD" icon="mdi-chevron-right" @click="goNext" class="mx-1 next-btn"
+      :disabled="(currentStepIndex === totalSteps) || loading">
 
-      <!-- Progress Messages -->
-      <transition-group name="fade" mode="out-in">
-        <p v-for="(msg, index) in progressMessages" :key="index" class="progress-text">
-          {{ msg }}
-        </p>
-      </transition-group>
-    </v-card-text>
+    </v-btn>
+    <v-progress-linear v-if="loading" color="cyan" height="15" :model-value="progressPercentage">
+      <p>Step {{ currentStepIndex }}/{{ totalSteps }}</p>
+    </v-progress-linear>
 
-    <!-- Final Image Display -->
-    <v-card-text v-if="finalImageUrl">
-      <p class="final-text">Camouflage generated successfully!</p>
-      <v-img :src="finalImageUrl" max-width="50vw" max-height="65vh" />
+  </v-card>
 
-      <!-- Download Button -->
-      <v-btn class="mt-5 mx-auto" variant="outlined" color="primary" @click="downloadImage">
-        Download Image
-      </v-btn>
+  <v-card v-else elevation="5" class="progress-card">
+    <v-progress-linear v-if="loading && currentStepIndex == 0" color="cyan" striped height="8" indeterminate="">
+    </v-progress-linear>
+    <v-card-title class="bg-blue-lighten-5" :class="{ 'pt-4': !loading }">Progress Updates</v-card-title>
+    <v-card-text class="d-flex justify-center align-center">
+
+      <v-container v-if="loading">
+        <v-row class="text-center">
+          <v-col class="text-center">
+            <!-- Using v-img to display the GIF -->
+            <v-img class="mx-auto" src="../../public/static/computer.gif" alt="Sample GIF" width="150" height="150"
+              contain></v-img>
+            <span>
+              Selected Images are being Uploading
+            </span>
+          </v-col>
+        </v-row>
+      </v-container>
+
+      <v-container v-else>
+        <v-row class="text-center">
+          <v-col class="text-center">
+            <!-- Using v-img to display the GIF -->
+            <v-img class="mx-auto" src="../../public/static/pictures.png" width="120" height="120" contain></v-img>
+            <span>
+              Upload Image to Continue
+            </span>
+          </v-col>
+        </v-row>
+      </v-container>
+
     </v-card-text>
   </v-card>
 </template>
@@ -44,39 +91,42 @@
 <script>
 export default {
   props: {
-    progressMessages: Array,
+    steps: Object,
     currentStep: Number,
     totalSteps: Number,
     loading: Boolean,
-    finalImageUrl: String, // New prop to hold the final processed image URL
+
+  },
+  data() {
+    return {
+      loading_download: false,
+      currentStepIndex: this.currentStep  // Initialize based on the passed prop
+    };
   },
   computed: {
     progressPercentage() {
-      return (this.currentStep / this.totalSteps) * 100;
+      return ((this.currentStepIndex) / this.totalSteps) * 100;
+    },
+    currentStepObj() {
+      return this.steps[this.currentStepIndex];
     },
   },
   methods: {
-    downloadImage() {
-      const filename = this.finalImageUrl.split('/').pop(); 
-      console.log(filename)// Extract the filename from the URL
-      const downloadUrl = `https://backend.intelilab.click/download-image/${filename}`; // Point to the Flask download route
-
-      // Make a GET request to trigger the download
-      fetch(downloadUrl)
-        .then(response => response.blob())
-        .then(blob => {
-          const link = document.createElement('a');
-          const objectURL = URL.createObjectURL(blob); // Create an object URL for the blob
-          link.href = objectURL;
-          link.setAttribute('download', filename); // Set the file name for download
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link); // Clean up
-          URL.revokeObjectURL(objectURL); // Revoke the object URL to free up memory
-        })
-        .catch(error => {
-          console.error('Error downloading image:', error);
-        });
+    goNext() {
+      // if (this.currentStepIndex < this.totalSteps - 1) {
+      this.currentStepIndex++;
+      // }
+    },
+    goPrevious() {
+      if (this.currentStepIndex > 0) {
+        this.currentStepIndex--;
+      }
+    },
+  },
+  watch: {
+    // In case the parent passes a new step via props, update the currentStepIndex
+    currentStep(newStep) {
+      this.currentStepIndex = newStep;
     },
   },
 };
@@ -86,59 +136,31 @@ export default {
 .progress-card {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  height: 100%;
-}
-
-.progress-content {
-  flex: 1;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
+  height: 100%;
+  position: relative;
+  /* Relative positioning to contain the buttons */
 }
 
-.progress-bar {
-  margin-bottom: 20px;
-}
-
-.step-image {
-  max-width: 150px;
-  margin-bottom: 20px;
-  transition: opacity 0.5s ease;
-}
-
-.progress-text {
-  font-size: 18px;
-  text-align: center;
-}
-
-.initial-state-text {
+.step-description {
   font-size: 18px;
   text-align: center;
   margin: 20px;
 }
 
-.final-text {
-  font-size: 20px;
-  font-weight: bold;
-  margin-bottom: 15px;
+/* Position Previous Button on the Left */
+.prev-btn {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
-.final-image {
-  margin-bottom: 20px;
-}
-
-
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s;
-}
-
-.fade-enter,
-.fade-leave-to {
-  opacity: 0;
+/* Position Next Button on the Right */
+.next-btn {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
 }
 </style>
