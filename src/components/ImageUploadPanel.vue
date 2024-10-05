@@ -6,43 +6,43 @@
 
     <v-card-text class="upload-content">
       <!-- Clickable Drag and Drop Area -->
+      <v-form ref="form">
+        <v-row>
+          <v-col>
+            <v-select v-model="selectedEnvironment" :items="environments" item-title="textenv" :item-props="true"
+              label="Select Environment" :rules="[v => !!v || 'Environment is required']" outlined>
+              <!-- Custom rendering of each item -->
+              <template #item="{ item, on, props }">
+                <v-list-item v-bind="props" v-on="on" :title="item.textenv" :prepend-icon="props.icon">
+                  <v-list-item-content>
+                    <v-list-item-title>{{ props.textenv }}</v-list-item-title>
+                    <v-list-item-subtitle>{{ props.description }}</v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+              </template>
 
-      <v-row>
-        <v-col>
-          <v-select v-model="selectedEnvironment" :items="environments" item-title="textenv" :item-props="true"
-            label="Select Environment" outlined>
-            <!-- Custom rendering of each item -->
-            <template #item="{ item, on, props }">
-              <v-list-item v-bind="props" v-on="on" :title="item.textenv" :prepend-icon="props.icon">
-                <v-list-item-content>
-                  <v-list-item-title>{{ props.textenv }}</v-list-item-title>
-                  <v-list-item-subtitle>{{ props.description }}</v-list-item-subtitle>
-                </v-list-item-content>
-              </v-list-item>
-            </template>
-
-          </v-select>
-        </v-col>
-      </v-row>
+            </v-select>
+          </v-col>
+        </v-row>
 
 
-      <v-row>
-        <v-col>
-          <div class="drop-area" @dragover.prevent @drop.prevent="handleDrop" @dragenter.prevent="dragging = true"
-            @dragleave.prevent="dragging = false" @click="openFilePicker"
-            :class="{ 'dragging': dragging, 'with-images': imagePreviews.length > 0 }">
-            <div v-if="imagePreviews.length === 0" class="my-10">
-              <img src="../assets/add-image.png" alt="placeholder" class="placeholder-image" />
-              <p class="mb5">Drag and drop your images here, or click to select files</p>
+        <v-row>
+          <v-col>
+            <div class="drop-area" @dragover.prevent @drop.prevent="handleDrop" @dragenter.prevent="dragging = true"
+              @dragleave.prevent="dragging = false" @click="openFilePicker"
+              :class="{ 'dragging': dragging, 'with-images': imagePreviews.length > 0, 'border-noerror': !hasError, 'border-error': hasError }">
+              <div v-if="imagePreviews.length === 0" class="my-10">
+                <img src="../assets/add-image.png" alt="placeholder" class="placeholder-image" />
+                <p class="mb5">Drag and drop your images here, or click to select files</p>
+
+              </div>
+
+              <p v-if="!dragging && imagePreviews.length > 0">Click to add more images</p>
 
             </div>
-
-            <p v-if="!dragging && imagePreviews.length > 0">Click to add more images</p>
-
-          </div>
-        </v-col>
-      </v-row>
-
+          </v-col>
+        </v-row>
+      </v-form>
 
       <!-- Hidden File Input -->
       <v-file-input ref="fileInput" v-model="selectedImages" multiple show-size hide-details
@@ -73,8 +73,10 @@
 
 <script>
 export default {
+
   data() {
     return {
+      hasError: false,
       selectedEnvironment: null,
       description: "Choose an environment to adapt the camouflage pattern.",
       environments: [
@@ -146,16 +148,33 @@ export default {
         };
         reader.readAsDataURL(file);
       });
+      this.hasError = false;
     },
     deleteImage(index) {
-      this.imagePreviews.splice(index, 1); // Remove image at the specific index
+      this.imagePreviews.splice(index, 1);
+      this.selectedImages.splice(index, 1); // Remove image at the specific index
     },
-    uploadImages() {
+    async uploadImages() {
+
+      console.log(this.selectedImages.length)
+
+      const formValid = await this.$refs.form.validate();
+
       if (this.selectedImages.length === 0) {
-        alert("No images to upload");
-        return;
+        console.log("no images")
+        this.hasError = true;
       }
-      this.$emit("upload", this.selectedImages);
+      else if(this.selectedEnvironment === null){
+        console.log("form not valid")
+      }
+      else{
+        console.log("uploading images")
+        this.$emit("upload", this.selectedImages);
+      }
+
+
+
+
     },
   },
 };
@@ -177,8 +196,15 @@ export default {
   flex-direction: column;
 }
 
+.border-noerror {
+  border: 2px dashed #6d6d6d;
+}
+
+.border-error {
+  border: 2px dashed #ff0000;
+}
+
 .drop-area {
-  border: 2px dashed #aaa;
   padding: 20px;
   text-align: center;
   cursor: pointer;

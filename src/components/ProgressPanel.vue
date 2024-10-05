@@ -2,7 +2,7 @@
   <v-card v-if="currentStepIndex > 0" elevation="5" class="progress-card">
     <v-progress-linear v-if="loading" color="cyan" striped height="8" indeterminate="">
     </v-progress-linear>
-    <v-card-title class="bg-blue-lighten-5 mb-2">Progress Updates</v-card-title>
+    <v-card-title class="bg-blue-lighten-5 mb-2" :class="{ 'pt-4': !loading }">Progress Updates</v-card-title>
 
     <!-- Display Current Step Image and Description -->
     <v-card-text class="text-center pt-4">
@@ -13,7 +13,7 @@
         <v-row class="d-flex justify-center align-center">
           <v-col class=" text-center">
             <v-img :aspect-ratio="1" class="bg-white mx-auto mt-4" :src="steps[currentStepIndex - 1]['imageUrl']"
-              width="500" cover>
+              width="25vw" cover>
 
               <template v-slot:placeholder>
                 <div class="d-flex align-center justify-center fill-height grey-lighten-4"

@@ -22,7 +22,7 @@ export default {
   data() {
     return {
       currentStep: 0,
-      totalSteps: 10,
+      totalSteps: 5,
       steps: [],
       progressMessages: [],
       finalImageUrl: null,
@@ -82,8 +82,9 @@ export default {
               console.log(data.description)
               this.currentStep = data.id
 
-              if (this.currentStep == 10) {
+              if (this.currentStep == this.totalSteps) {
                 this.loading = false;
+                return
 
               }
             }
