@@ -9,8 +9,8 @@
 
       <!-- Right Panel: Progress Updates -->
       <v-col>
-        <ProgressPanel height="85vh" :currentStep="currentStep" :totalSteps=totalSteps
-          :steps ="steps" :loading="loading" />
+        <ProgressPanel height="85vh" :currentStep="currentStep" :totalSteps=totalSteps :steps="steps"
+          :loading="loading" />
       </v-col>
     </v-row>
   </v-container>
@@ -31,7 +31,7 @@ export default {
     };
   },
   methods: {
-    async uploadImages(selectedImages) {
+    async uploadImages(selectedImages, selected_env) {
       this.loading = true;
       // this.currentStep = 0
       // this.steps = []
@@ -40,13 +40,13 @@ export default {
 
       const formData = new FormData();
       selectedImages.forEach((file) => formData.append('images', file));
-
+      formData.append('env_type', selected_env)
+      formData.forEach((value, key) => {
+        console.log(key + ': ' + value);
+      });
       try {
-        const response = await fetch('http://localhost:8080/gencam', {
+        const response = await fetch('http://backend.intelilab.click/generate-camouflage', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          },
           body: formData,
         });
 
