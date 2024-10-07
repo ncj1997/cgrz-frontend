@@ -120,6 +120,8 @@ def sse_stream(env_image, camo_image, selected_objects, base_url):
 
             return img
 
+        img_step_two = None
+
         # Apply the camouflage pattern to all masks
         for mask in masks:
             img_step_two = apply_camouflage(img_rgb, mask, pattern)
@@ -172,6 +174,8 @@ def sse_stream(env_image, camo_image, selected_objects, base_url):
             return img
         
         # Apply the camouflage pattern with blending to all masks
+
+        img_step3 = None
 
         for mask in masks:
             img_step3 = apply_camouflage_with_blending(img_rgb, mask, pattern)
