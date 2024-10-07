@@ -169,7 +169,7 @@ export default {
       }
       else{
         console.log("uploading images")
-        this.$emit("upload", this.selectedImages);
+        this.$emit("upload", this.selectedImages,this.selectedEnvironment);
       }
 
 
