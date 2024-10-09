@@ -22,7 +22,7 @@ export default {
   data() {
     return {
       currentStep: 0,
-      totalSteps: 5,
+      totalSteps: 7,
       steps: [],
       progressMessages: [],
       finalImageUrl: null,
