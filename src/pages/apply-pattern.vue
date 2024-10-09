@@ -44,7 +44,7 @@ export default {
 
       try {
         this.loading = true; // Start loading spinner
-        const response = await fetch('http://backend.intelilab.click/apply_camouflage', {
+        const response = await fetch('https://backend.intelilab.click/apply_camouflage', {
           method: 'POST',
           body: formData,
         });
@@ -61,6 +61,7 @@ export default {
         this.processedImageUrl = data.image_url;
         this.detectionResult = data.detection_result;
       } catch (error) {
+        alert("Network Error")
         console.error('Error processing images:', error);
       } finally {
         this.loading = false; // Stop loading spinner
