@@ -3,7 +3,7 @@
     <v-row>
       <!-- Left Panel: Settings and Image Upload -->
       <v-col>
-        <SettingsAndImageUpload @upload="processImages" />
+        <SettingsAndImageUpload height="85vh" @upload="processImages" />
       </v-col>
 
       <!-- Right Panel: Processed YOLO Image -->

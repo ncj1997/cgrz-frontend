@@ -13,26 +13,31 @@
         <v-row>
           <!-- Environment Image Upload -->
           <v-col>
-            <div class="drop-area" @dragover.prevent @drop.prevent="handleDrop" @click="openFilePicker">
-              <div v-if="!environmentImagePreview" class="my-10">
-                <p>Drag and drop Environment Image here, or click to select files</p>
+            <div class="drop-area  text-center" :class="{ 'bg-blue-lighten-5': !environmentImagePreview }"
+              @click="openFilePicker">
+              <div v-if="!environmentImagePreview" class="my-10 ">
+                <p>Click the button below to upload the Environment Image</p>
               </div>
               <img v-if="environmentImagePreview" :src="environmentImagePreview" class="preview-image" />
+
             </div>
-            <v-file-input ref="environmentFileInput" @change="previewEnvironmentImage" accept="image/jpeg, image/png" style="display: none" />
-            <v-btn @click="openEnvironmentFilePicker">Upload Environment Image</v-btn>
+            <v-file-input ref="environmentFileInput" @change="previewEnvironmentImage" accept="image/jpeg, image/png"
+              style="display: none" />
+            <v-btn width="100%" variant="flat" color="blue-lighten-5 mx-auto" @click="openEnvironmentFilePicker">Upload Environment
+              Image</v-btn>
           </v-col>
 
           <!-- Camouflage Image Upload -->
           <v-col>
-            <div class="drop-area" @dragover.prevent @drop.prevent="handleDropCamouflage" @click="openCamouflageFilePicker">
-              <div v-if="!camouflageImagePreview" class="my-10">
-                <p>Drag and drop Camouflage Image here, or click to select files</p>
+            <div class="drop-area" :class="{'bg-blue-lighten-5': !camouflageImagePreview}">
+              <div v-if="!camouflageImagePreview"  class="my-10">
+                <p>Click the button below to upload the Camouflage Image</p>
               </div>
               <img v-if="camouflageImagePreview" :src="camouflageImagePreview" class="preview-image" />
             </div>
-            <v-file-input ref="camouflageFileInput" @change="previewCamouflageImage" accept="image/jpeg, image/png" style="display: none" />
-            <v-btn @click="openCamouflageFilePicker">Upload Camouflage Image</v-btn>
+            <v-file-input ref="camouflageFileInput" @change="previewCamouflageImage" accept="image/jpeg, image/png"
+              style="display: none" />
+            <v-btn  width="100%" variant="flat" color="blue-lighten-5 mx-auto"  @click="openCamouflageFilePicker">Upload Camouflage Image</v-btn>
           </v-col>
         </v-row>
       </v-form>
@@ -48,7 +53,7 @@ export default {
   data() {
     return {
       selectedObjectType: null,
-      objectTypes: ['Humans', 'Vehicles'],
+      objectTypes: ['Human', 'Vehicles'],
       environmentImage: null,  // Correct binding for environment image
       camouflageImage: null,   // Correct binding for camouflage image
       environmentImagePreview: '',
@@ -149,7 +154,6 @@ export default {
 .drop-area {
   padding: 20px;
   text-align: center;
-  cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -160,6 +164,6 @@ export default {
 
 .preview-image {
   max-width: 100%;
-  height: 100px;
+  height: 100%;
 }
 </style>

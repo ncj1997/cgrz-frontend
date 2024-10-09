@@ -59,7 +59,7 @@
     <v-card-title class="bg-blue-lighten-5" :class="{ 'pt-4': !loading }">Progress Updates</v-card-title>
     <v-card-text class="d-flex justify-center align-center">
 
-      <v-container v-if="loading">
+      <v-container  v-if="loading">
         <v-row class="text-center">
           <v-col class="text-center">
             <!-- Using v-img to display the GIF -->
@@ -72,7 +72,7 @@
         </v-row>
       </v-container>
 
-      <v-container v-else>
+      <v-container  v-else>
         <v-row class="text-center">
           <v-col class="text-center">
             <!-- Using v-img to display the GIF -->
