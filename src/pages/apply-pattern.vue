@@ -1,50 +1,77 @@
 <template>
-    <div style="margin-top: 10vh;">
-        <h1>Apply Adaptive Camouflage</h1>
-        <p>
-            Welcome to the Adaptive Camouflage Application Interface. Use this tool to segment objects and apply the
-            generated camouflage patterns using YOLOv8 technology.
-        </p>
-        
-        <h3>Instructions:</h3>
-        <v-list>
-            <v-list-item>
-                <template v-slot:prepend>
-                    <v-icon color="primary">mdi-upload</v-icon>
-                </template>
-                <v-list-item-title><strong>Upload an Image:</strong></v-list-item-title>
-                <v-list-item-subtitle>Select the image of the object or environment where the camouflage will be applied.</v-list-item-subtitle>
-            </v-list-item>
+  <v-container fluid class="pa-1">
+    <v-row>
+      <!-- Left Panel: Settings and Image Upload -->
+      <v-col>
+        <SettingsAndImageUpload @upload="processImages" />
+      </v-col>
 
-            <v-list-item>
-                <template v-slot:prepend>
-                    <v-icon color="primary">mdi-image-filter-center-focus</v-icon>
-                </template>
-                <v-list-item-title><strong>Segment the Object:</strong></v-list-item-title>
-                <v-list-item-subtitle>YOLOv8 will automatically detect and segment the objects in the image.</v-list-item-subtitle>
-            </v-list-item>
-
-            <v-list-item>
-                <template v-slot:prepend>
-                    <v-icon color="primary">mdi-palette</v-icon>
-                </template>
-                <v-list-item-title><strong>Apply Camouflage:</strong></v-list-item-title>
-                <v-list-item-subtitle>The adaptive camouflage pattern will be applied based on the segmentation results.</v-list-item-subtitle>
-            </v-list-item>
-
-            <v-list-item>
-                <template v-slot:prepend>
-                    <v-icon color="primary">mdi-eye-check</v-icon>
-                </template>
-                <v-list-item-title><strong>Preview & Download:</strong></v-list-item-title>
-                <v-list-item-subtitle>Preview the camouflaged object and download the final result.</v-list-item-subtitle>
-            </v-list-item>
-        </v-list>
-
-        <p>
-            This process uses advanced computer vision techniques to blend objects into their environments, providing
-            seamless camouflage.
-        </p>
-
-    </div>
+      <!-- Right Panel: Processed YOLO Image -->
+      <v-col>
+        <ProcessedYoloImage
+          :imageUrl="processedImageUrl"
+          :detectionResult="detectionResult"
+          :loading="loading"
+        />
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
+
+<script>
+import SettingsAndImageUpload from '@/components/SettingsAndImageUpload.vue';
+import ProcessedYoloImage from '@/components/ProcessedYoloImage.vue';
+
+export default {
+  components: {
+    SettingsAndImageUpload,
+    ProcessedYoloImage,
+  },
+  data() {
+    return {
+      processedImageUrl: null, // Holds the URL of the processed image returned from the API
+      detectionResult: '',     // Holds the detection result (message or status) from the API
+      loading: false,          // Loading indicator for the API call
+    };
+  },
+  methods: {
+    // Function to handle the image processing
+    async processImages({environmentImage, camouflageImage, objectType}) {
+      const formData = new FormData();
+      formData.append('environment_image', environmentImage);
+      formData.append('camouflage_image', camouflageImage);
+      formData.append('object_type', objectType);
+
+      try {
+        this.loading = true; // Start loading spinner
+        const response = await fetch('http://backend.intelilab.click/apply_camouflage', {
+          method: 'POST',
+          body: formData,
+        });
+
+        // Check if the response was successful
+        if (!response.ok) {
+          throw new Error('Error processing images');
+        }
+
+        // Parse the response from the backend
+        const data = await response.json();
+
+        // Set the processed image URL and detection result
+        this.processedImageUrl = data.image_url;
+        this.detectionResult = data.detection_result;
+      } catch (error) {
+        console.error('Error processing images:', error);
+      } finally {
+        this.loading = false; // Stop loading spinner
+      }
+    },
+  },
+};
+</script>
+
+<style scoped>
+.v-container {
+  padding: 1px;
+}
+</style>
