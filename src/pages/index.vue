@@ -45,7 +45,7 @@ export default {
         console.log(key + ': ' + value);
       });
       try {
-        const response = await fetch('https://backend.intelilab.click/generate-camouflage', {
+        const response = await fetch('http://backend.intelilab.click/generate-camouflage', {
           method: 'POST',
           body: formData,
         });
