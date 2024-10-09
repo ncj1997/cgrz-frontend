@@ -45,7 +45,7 @@ export default {
         console.log(key + ': ' + value);
       });
       try {
-        const response = await fetch('http://backend.intelilab.click/generate-camouflage', {
+        const response = await fetch('https://backend.intelilab.click/generate-camouflage', {
           method: 'POST',
           body: formData,
         });
@@ -92,6 +92,7 @@ export default {
         }
       } catch (error) {
         console.error('Error uploading images:', error);
+        alert('Network error occurred while uploading images.')
         this.loading = false;
         this.progressMessages.push('Error occurred while uploading images.');
       }
