@@ -44,8 +44,10 @@ export default {
       formData.forEach((value, key) => {
         console.log(key + ': ' + value);
       });
+      host_env = "https://backend.intelilab.click"
+      // const host_env = "http://127.0.0.1:5000"
       try {
-        const response = await fetch('https://backend.intelilab.click/generate-camouflage', {
+        const response = await fetch(`${host_env}/generate-camouflage`, {
           method: 'POST',
           body: formData,
         });

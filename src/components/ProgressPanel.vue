@@ -27,7 +27,7 @@
         </v-row>
         <v-row>
           <v-btn variant="outlined" class="mx-auto" :loading="loading_download"
-            @click="loading_download = !loading_download">
+            @click="download_images(steps[currentStepIndex - 1]['imageUrl'])">
             Download the image
 
             <template v-slot:loader>
@@ -59,7 +59,7 @@
     <v-card-title class="bg-blue-lighten-5" :class="{ 'pt-4': !loading }">Progress Updates</v-card-title>
     <v-card-text class="d-flex justify-center align-center">
 
-      <v-container  v-if="loading">
+      <v-container v-if="loading">
         <v-row class="text-center">
           <v-col class="text-center">
             <!-- Using v-img to display the GIF -->
@@ -72,7 +72,7 @@
         </v-row>
       </v-container>
 
-      <v-container  v-else>
+      <v-container v-else>
         <v-row class="text-center">
           <v-col class="text-center">
             <!-- Using v-img to display the GIF -->
@@ -85,6 +85,7 @@
       </v-container>
 
     </v-card-text>
+
   </v-card>
 </template>
 
@@ -112,6 +113,16 @@ export default {
     },
   },
   methods: {
+    download_images(fileURL) {
+      this.loading_download = !this.loading_download
+      const link = document.createElement('a');
+      link.href = fileURL; // No "premade_images" in the URL
+      link.setAttribute('download', 'camouflaged_image_downloaded.png');
+      link.setAttribute('target', '_self'); // Ensures that it doesn't open in a new tab
+      link.click();
+      this.loading_download = !this.loading_download
+
+    },
     goNext() {
       // if (this.currentStepIndex < this.totalSteps - 1) {
       this.currentStepIndex++;
