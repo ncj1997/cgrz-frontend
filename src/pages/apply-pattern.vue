@@ -44,7 +44,7 @@ export default {
 
       try {
         this.loading = true; // Start loading spinner
-        const response = await fetch('https://backend.intelilab.click/apply_camouflage', {
+        const response = await fetch('http://127.0.0.1:5000/apply_camouflage', {
           method: 'POST',
           body: formData,
         });
